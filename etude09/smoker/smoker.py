@@ -1,6 +1,6 @@
 #optimise distnce from top-left to bottom-right whilst optimising total distance to each smoker
 
-class node:
+class Node:
 
     def __init__(self,state,parent,cost,heuristic):
         self.state = state
@@ -9,16 +9,30 @@ class node:
         self.heuristic = heuristic
 
     def toString(self):
-        print("Node: " + self.state)
+        print("Node Position: " + str(self.state) + " Cost: " + str(self.cost) + " Heuristic: " + str(self.heuristic))
 
-def costFunc(currentState):
-    #min distance from any non-smoker
-    goalState = ()
+def getDist(state1,state2):
+    return abs(state1[0] - state2[0]) + abs(state1[1] - state2[1])
 
-def heuristicFunc(currentState):
+def getCost(currentState,thisWorld):
+    #distance from closest non-smoker (may need to expand to encorperate all non-smokers)
+    smallestDist = 10000
+    closestPersonIndex = 1
+    for n in range(1,len(thisWorld)-1):
+        dist = getDist(currentState,thisWorld[n])
+        if dist < smallestDist:
+            smallestDist = dist
+            closestPersonIndex = n
+    return smallestDist
+
+
+def getHeuristic(currentState):
     #straight line distance
-    return
+    return 10
 
+##########################
+#### Code Starts Here ####
+##########################
 
 #need to split up different worlds, sepparate the first line from the rest.
 fileName = input("Enter name of file\n")
@@ -43,3 +57,6 @@ for i in range(len(lines)):
 
 print(worlds)
 
+initState = [0,1]
+n1 = Node(initState,None,getCost(initState,worlds[0]),getHeuristic(initState))
+n1.toString()
