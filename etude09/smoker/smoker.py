@@ -1,4 +1,5 @@
-#optimise distnce from top-left to bottom-right whilst optimising total distance to each smoker
+#optimise distnce from top-left to bottom-right whilst maximising total distance to each non-smoker
+import math
 
 class Node:
 
@@ -26,9 +27,9 @@ def getCost(currentState,thisWorld):
     return smallestDist
 
 
-def getHeuristic(currentState):
+def getHeuristic(currentState, endState):
     #straight line distance
-    return 10
+    return math.sqrt(((endState[0] - currentState[0])**2) + ((endState[1] - currentState[1])**2))
 
 ##########################
 #### Code Starts Here ####
@@ -57,6 +58,6 @@ for i in range(len(lines)):
 
 print(worlds)
 
-initState = [0,1]
-n1 = Node(initState,None,getCost(initState,worlds[0]),getHeuristic(initState))
+initState = [0,0]
+n1 = Node(initState,None,getCost(initState,worlds[0]),getHeuristic(initState,worlds[0][0]))
 n1.toString()
