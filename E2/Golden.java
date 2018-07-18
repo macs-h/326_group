@@ -1,16 +1,29 @@
 import java.util.*;
 
+/** 
+  * etude02 (Sage and Trewlawney)
+  * 
+  * @author Tom Adams
+  * @author Max Huang
+  * @author Mitchie Maluschnig
+  * @author Asher Statham
+  *
+  * @since 16 July 2018
+  */
+
 public class Golden{
+  static int n;
   public static void main(String[]args){
     Scanner scan = new Scanner(System.in);
     while(true){
       int d = scan.nextInt();
-      System.out.println(golden(d));
+      n = 0;
+      System.out.println("> "+golden(d));
     }
   }
   
   public static int golden(int d){
-    int h = silver(d, d);
+    int h = silver(d, d) + n;
     if (h % 12 == 0){
       return 12;
     }
@@ -21,13 +34,15 @@ public class Golden{
     if (c == 1){
       return 1;
     } else if (b == c){
-      return silver(b, c-1) + 1;
+      n++;
+      if(n>12) n = n%12;
+      return silver(b, c-1);
     } else if (c > b){
-      return golden(b);
+      //System.out.println("b: " + b + " c: " + c);
+      //return golden(b);
+      return silver(b,b);
     } else if (b > c){
-      int x = silver(b-c, c);
-      x += silver(b, c-1);
-      return  x;
+      return silver(b-c, c) + silver(b, c-1);
     }
     return 0;
   }
