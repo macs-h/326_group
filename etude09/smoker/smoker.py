@@ -31,6 +31,9 @@ def getHeuristic(currentState, endState):
     #straight line distance
     return math.sqrt(((endState[0] - currentState[0])**2) + ((endState[1] - currentState[1])**2))
 
+def getActions(currentState, thisWorld):
+    return
+
 ##########################
 #### Code Starts Here ####
 ##########################
@@ -82,6 +85,8 @@ for world in worlds:
             closedList.append(openList[lowestNodeIndex])
             currentNode = openList.pop(lowestNodeIndex)
             currentNode.toString()
+
+            actionList = getActions(currentNode.state,world)
 '''
 open_list = list()
 closed_list = list()
