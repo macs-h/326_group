@@ -11,9 +11,13 @@ class node:
     def toString(self):
         print("Node: " + self.state)
 
-def cost(currentState):
+def costFunc(currentState):
+    #min distance from any non-smoker
     goalState = ()
 
+def heuristicFunc(currentState):
+    #straight line distance
+    return
 
 
 #need to split up different worlds, sepparate the first line from the rest.
@@ -23,7 +27,6 @@ lines = file.readlines()
 file.close()
 
 worlds = [[]]
-isFirst = 0
 numWorld = 0
 for i in range(len(lines)):
     if lines[i] == "\n":
@@ -36,12 +39,7 @@ for i in range(len(lines)):
         lines[i][0] = int(lines[i][0])
         lines[i][1] = int(lines[i][1])
 
-        if isFirst == 0:
-            isFirst = 1
-            length = lines[i][0]
-            height = lines[i][1]
-        else:
-            worlds[numWorld].append(lines[i])
+        worlds[numWorld].append(lines[i])
 
-print(worlds,length,height)
+print(worlds)
 
