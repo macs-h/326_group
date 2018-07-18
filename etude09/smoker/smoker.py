@@ -36,7 +36,8 @@ def getHeuristic(currentState, endState):
 ##########################
 
 #need to split up different worlds, sepparate the first line from the rest.
-fileName = input("Enter name of file\n")
+#fileName = input("Enter name of file\n")
+fileName = "exampleWorld"
 file = open(fileName + ".txt","r")
 lines = file.readlines()
 file.close()
@@ -56,8 +57,74 @@ for i in range(len(lines)):
 
         worlds[numWorld].append(lines[i])
 
-print(worlds)
+print("Worlds: " + str(worlds))
 
 initState = [0,0]
-n1 = Node(initState,None,getCost(initState,worlds[0]),getHeuristic(initState,worlds[0][0]))
-n1.toString()
+for world in worlds:
+    openList = []
+    closedList = []
+    endState = world[0]
+
+    rootNode = Node(initState,None,getCost(initState,world),getHeuristic(initState,endState))
+    rootNode.toString()
+    openList.append(rootNode)
+    currentNode = rootNode
+
+    while not currentNode.state == endState:
+        print("looping YAY")
+
+        #find smallest cost+heuristic in open list
+        for n in range(len(openList)):
+            lowestNodeIndex = 0
+            if(openList[n].cost + openList[n].heuristic) < (openList[lowestNodeIndex].cost + openList[lowestNodeIndex].heuristic):
+                lowestNodeIndex = i
+
+            closedList.append(openList[lowestNodeIndex])
+            currentNode = openList.pop(lowestNodeIndex)
+            currentNode.toString()
+'''
+open_list = list()
+closed_list = list()
+init_state = puzzle.reset()
+root = node(s=init_state, parent=None, cost=0, action=None, h=getManhattan(init_state))
+open_list.append(root)
+currentNode = root
+numTurns = 0
+start_time = time.time()
+
+while not puzzle.isgoal(s=currentNode.s):
+    #actions = puzzle.actions(s=current_state)
+    lowestNode = 0;
+    #this part is probably need to be more efficient!
+    for i in range(0,len(open_list),10):
+        if((open_list[i].cost + open_list[i].h) < (open_list[lowestNode].cost + open_list[lowestNode].h)):
+            lowestNode = i
+
+    closed_list.append(open_list[lowestNode])
+    currentNode = open_list.pop(lowestNode)
+
+    for action in puzzle.actions(currentNode.s):
+        #open_list.append(puzzle.step(s=current_state, a=action))
+        newState = puzzle.step(s=currentNode.s, a=action)
+        newNode = node(s=newState,parent=currentNode,cost=currentNode.cost+1,action=action,h=getManhattan(newState))
+        in_closed_list = False
+        for n in closed_list:
+            #if (compareArrays(n.s,newNode.s)):
+            if(n.s == newNode.s):
+                in_closed_list = True
+                break
+
+        if(in_closed_list == False):
+            open_list.append(newNode)
+
+print(currentNode.toString())
+
+elapsed_time = time.time() - start_time
+print("Time: %.1f seconds" % elapsed_time)
+while currentNode != root:
+    actions_list.append(currentNode.action)
+    currentNode = currentNode.parent
+actions_list.reverse()
+print(len(actions_list))
+puzzle.show(a=actions_list)
+'''
