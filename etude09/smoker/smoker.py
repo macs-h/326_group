@@ -93,23 +93,23 @@ for world in worlds:
                                                 openList[lowestNodeIndex].heuristic):
                 lowestNodeIndex = openNode
 
-            closedList.append(openList[lowestNodeIndex])
-            currentNode = openList.pop(lowestNodeIndex)
-            #currentNode.toString()
+        closedList.append(openList[lowestNodeIndex])
+        currentNode = openList.pop(lowestNodeIndex)
+        #currentNode.toString()
 
-            newStates = getStates(currentNode.state,world)
+        newStates = getStates(currentNode.state,world)
 
-            for state in newStates:
-                newNode = Node(state,currentNode,getCost(state,world),getHeuristic(state,endState))
+        for state in newStates:
+            newNode = Node(state,currentNode,getCost(state,world),getHeuristic(state,endState))
 
-                inClosedList = False
-                for closeNode in closedList:
-                    if closeNode.state == newNode.state:
-                        inClosedList = True
-                        break
+            inClosedList = False
+            for closeNode in closedList:
+                if closeNode.state == newNode.state:
+                    inClosedList = True
+                    break
 
-                if inClosedList == False:
-                    openList.append(newNode)
+            if inClosedList == False:
+                openList.append(newNode)
     print("End State: " + currentNode.toString())
 
 '''
