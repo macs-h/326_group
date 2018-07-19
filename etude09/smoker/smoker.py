@@ -10,7 +10,8 @@ class Node:
         self.heuristic = heuristic
 
     def toString(self):
-        print("Node Position: " + str(self.state) + " Cost: " + str(self.cost) + " Heuristic: " + str(self.heuristic))
+        print("Node Position: " + str(self.state) + " Cost: " + str(self.cost) + " Heuristic: " +
+              str(int(self.heuristic)) + " CH: " + str(self.cost + self.heuristic))
 
 def getDist(state1,state2):
     return abs(state1[0] - state2[0]) + abs(state1[1] - state2[1])
@@ -31,8 +32,15 @@ def getHeuristic(currentState, endState):
     #straight line distance
     return math.sqrt(((endState[0] - currentState[0])**2) + ((endState[1] - currentState[1])**2))
 
-def getActions(currentState, thisWorld):
-    return
+def getStates(currentState, thisWorld):
+    #returns the states that can be reached from current state
+    nextStates = []
+    if currentState[0] > 0: nextStates.append([currentState[0] - 1,currentState[1]])#only add if there is a intersection to the left
+    if currentState[1] > 0: nextStates.append([currentState[0],currentState[1] - 1]) #only add if there is a intersection above
+    if currentState[0] < thisWorld[0][1] - 1: nextStates.append([currentState[0] + 1,currentState[1]]) #only add if there is a intersection to the right
+    if currentState[1] < thisWorld[0][0] - 1: nextStates.append([currentState[0],currentState[1] + 1])#only add if there is a intersection below
+
+    return nextStates
 
 ##########################
 #### Code Starts Here ####
@@ -66,7 +74,7 @@ initState = [0,0]
 for world in worlds:
     openList = []
     closedList = []
-    endState = world[0]
+    endState = [world[0][1]-1,world[0][0]-1]
 
     rootNode = Node(initState,None,getCost(initState,world),getHeuristic(initState,endState))
     rootNode.toString()
@@ -74,19 +82,36 @@ for world in worlds:
     currentNode = rootNode
 
     while not currentNode.state == endState:
-        print("looping YAY")
+        # att break point currentNode.state is [7,8] and so is endState but the error must occur before
+        print(currentNode.state == endState)
 
         #find smallest cost+heuristic in open list
-        for n in range(len(openList)):
-            lowestNodeIndex = 0
-            if(openList[n].cost + openList[n].heuristic) < (openList[lowestNodeIndex].cost + openList[lowestNodeIndex].heuristic):
-                lowestNodeIndex = i
+        lowestNodeIndex = 0
+        for openNode in range(len(openList)):
+            if(openList[openNode].cost +
+               openList[openNode].heuristic) < (openList[lowestNodeIndex].cost +
+                                                openList[lowestNodeIndex].heuristic):
+                lowestNodeIndex = openNode
 
             closedList.append(openList[lowestNodeIndex])
             currentNode = openList.pop(lowestNodeIndex)
-            currentNode.toString()
+            #currentNode.toString()
 
-            actionList = getActions(currentNode.state,world)
+            newStates = getStates(currentNode.state,world)
+
+            for state in newStates:
+                newNode = Node(state,currentNode,getCost(state,world),getHeuristic(state,endState))
+
+                inClosedList = False
+                for closeNode in closedList:
+                    if closeNode.state == newNode.state:
+                        inClosedList = True
+                        break
+
+                if inClosedList == False:
+                    openList.append(newNode)
+    print("End State: " + currentNode.toString())
+
 '''
 open_list = list()
 closed_list = list()
