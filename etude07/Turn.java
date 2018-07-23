@@ -1,7 +1,10 @@
 /**
  * Represents a single turn for a player in Summit (for logging purposes).
  * 
- * @author Michael Albert
+ * @author Tom Adams
+ * @author Max Huang
+ * @author Mitchie Maluschnig
+ * @author Asher Statham
  */
 public class Turn {
     

@@ -7,7 +7,10 @@ import java.util.HashMap;
  * initial bets (so player 0 leads the action). When players leave the game the
  * other players' indices are unchanged.
  * 
- * @author Michael Albert
+ * @author Tom Adams
+ * @author Max Huang
+ * @author Mitchie Maluschnig
+ * @author Asher Statham
  */
 class State {
     
