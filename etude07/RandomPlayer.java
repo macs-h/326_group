@@ -2,10 +2,11 @@ import java.util.Random;
 
 /**
  * A fairly random player
+ *
  * @author Michael Albert
  */
 public class RandomPlayer implements Player {
-    
+
     private static Random R = new Random();
 
     @Override

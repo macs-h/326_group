@@ -7,8 +7,8 @@
  * @author Michael Albert
  */
 public interface Player {
-    
-    
+
+
     /**
      * Take action at your turn. Should return one of FOLD, ROLL, or SHOWDOWN.
      * FOLD is considered the default, i.e., if you return any other action it

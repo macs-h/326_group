@@ -6,7 +6,10 @@ import java.util.Random;
 /**
  * One round of the Summit game.
  *
- * @author Michael Albert
+ * @author Tom Adams
+ * @author Max Huang
+ * @author Mitchie Maluschnig
+ * @author Asher Statham
  */
 class Round {
 
@@ -25,7 +28,7 @@ class Round {
 
         System.out.println(Arrays.toString(s.bets));
         System.out.println("Player " + winner + " collects " + s.pot);
-        
+
     }
 
     private void initialiseDice() {

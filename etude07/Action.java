@@ -1,6 +1,6 @@
 /**
  * A convenience enum for the basic actions in a game of Summit.
- * 
+ *
  * @author Michael Albert
  */
 public enum Action {
@@ -9,5 +9,5 @@ public enum Action {
     SHOWDOWN,
     STAY,
     EXIT
-    
+
 }

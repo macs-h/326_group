@@ -3,7 +3,10 @@ import java.util.Scanner;
 
 /**
  *
- * @author Michael Albert
+ * @author Tom Adams
+ * @author Max Huang
+ * @author Mitchie Maluschnig
+ * @author Asher Statham
  */
 public class HumanPlayer implements Player {
 
