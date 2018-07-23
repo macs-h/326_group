@@ -1,39 +1,47 @@
-#optimise distnce from top-left to bottom-right whilst maximising total distance to each non-smoker
+# E9 - The Smoker's problem
+#
+# @author Tom Adams
+# @author Max Huang
+# @author Mitchie Maluschnig
+# @author Asher Statham
+#
+# @since 23 July 2018
+
 import math
 
+#A class to hold information about each intersection
 class Node:
 
-    def __init__(self,state,parent,cost,heuristic):
+    def __init__(self,state,parent,cost,heuristic,distance):
         self.state = state
         self.parent = parent
         self.cost = cost
         self.heuristic = heuristic
+        self.distance = distance
 
     def toString(self):
-        print("Node Position: " + str(self.state) + " Cost: " + str(self.cost) + " Heuristic: " +
-              str(int(self.heuristic)) + " CH: " + str(self.cost + self.heuristic))
+        return("Node Position: " + str(self.state) + " Cost: " + str(self.cost) + " Heuristic: " +
+              str(int(self.heuristic)) + " CH: " + str(self.cost + self.heuristic) + " distance: " + str(self.distance))
 
+#returns the straight line distance between two states
 def getDist(state1,state2):
     return abs(state1[0] - state2[0]) + abs(state1[1] - state2[1])
 
+#Manhattan distance to closest non-smoker
 def getCost(currentState,thisWorld):
-    #distance from closest non-smoker (may need to expand to encorperate all non-smokers)
     smallestDist = 10000
-    closestPersonIndex = 1
-    for n in range(1,len(thisWorld)-1):
+    for n in range(1,len(thisWorld)): #for each non-smoker in the world
         dist = getDist(currentState,thisWorld[n])
         if dist < smallestDist:
             smallestDist = dist
-            closestPersonIndex = n
-    return smallestDist
+    return smallestDist*(-1)
 
-
+#straight line distance from current state to the end state
 def getHeuristic(currentState, endState):
-    #straight line distance
     return math.sqrt(((endState[0] - currentState[0])**2) + ((endState[1] - currentState[1])**2))
 
+#returns all the states that can be reached from current state
 def getStates(currentState, thisWorld):
-    #returns the states that can be reached from current state
     nextStates = []
     if currentState[0] > 0: nextStates.append([currentState[0] - 1,currentState[1]])#only add if there is a intersection to the left
     if currentState[1] > 0: nextStates.append([currentState[0],currentState[1] - 1]) #only add if there is a intersection above
@@ -43,16 +51,20 @@ def getStates(currentState, thisWorld):
     return nextStates
 
 ##########################
-#### Code Starts Here ####
+#### Main Starts Here ####
 ##########################
-
-#need to split up different worlds, sepparate the first line from the rest.
-#fileName = input("Enter name of file\n")
-fileName = "exampleWorld"
-file = open(fileName + ".txt","r")
+file = None
+while file == None:
+    fileName = input("Enter name of file\n")
+    try:
+        file = open(fileName,"r")
+    except:
+        print("not a valid file name")
+        file = None
 lines = file.readlines()
 file.close()
 
+minCost = -10000
 worlds = [[]]
 numWorld = 0
 for i in range(len(lines)):
@@ -68,22 +80,24 @@ for i in range(len(lines)):
 
         worlds[numWorld].append(lines[i])
 
-print("Worlds: " + str(worlds))
-
+###########################
+#### Search Starts Here####
+###########################
+#for every world, perform an A* search to minimise the total distance traveled
+# whilst maximising total distance to each non-smoker.
 initState = [0,0]
 for world in worlds:
     openList = []
     closedList = []
     endState = [world[0][1]-1,world[0][0]-1]
 
-    rootNode = Node(initState,None,getCost(initState,world),getHeuristic(initState,endState))
-    rootNode.toString()
+    rootNode = Node(initState,None,getCost(initState,world),getHeuristic(initState,endState),0)
     openList.append(rootNode)
     currentNode = rootNode
 
     while not currentNode.state == endState:
-        # att break point currentNode.state is [7,8] and so is endState but the error must occur before
-        print(currentNode.state == endState)
+        if (currentNode.cost > minCost):
+            minCost = currentNode.cost
 
         #find smallest cost+heuristic in open list
         lowestNodeIndex = 0
@@ -95,12 +109,11 @@ for world in worlds:
 
         closedList.append(openList[lowestNodeIndex])
         currentNode = openList.pop(lowestNodeIndex)
-        #currentNode.toString()
 
         newStates = getStates(currentNode.state,world)
 
         for state in newStates:
-            newNode = Node(state,currentNode,getCost(state,world),getHeuristic(state,endState))
+            newNode = Node(state,currentNode,getCost(state,world),getHeuristic(state,endState),currentNode.distance+1)
 
             inClosedList = False
             for closeNode in closedList:
@@ -110,51 +123,15 @@ for world in worlds:
 
             if inClosedList == False:
                 openList.append(newNode)
-    print("End State: " + currentNode.toString())
+    print("Min " + str(minCost*(-1)) + ", Total " + str(currentNode.distance))
 
-'''
-open_list = list()
-closed_list = list()
-init_state = puzzle.reset()
-root = node(s=init_state, parent=None, cost=0, action=None, h=getManhattan(init_state))
-open_list.append(root)
-currentNode = root
-numTurns = 0
-start_time = time.time()
-
-while not puzzle.isgoal(s=currentNode.s):
-    #actions = puzzle.actions(s=current_state)
-    lowestNode = 0;
-    #this part is probably need to be more efficient!
-    for i in range(0,len(open_list),10):
-        if((open_list[i].cost + open_list[i].h) < (open_list[lowestNode].cost + open_list[lowestNode].h)):
-            lowestNode = i
-
-    closed_list.append(open_list[lowestNode])
-    currentNode = open_list.pop(lowestNode)
-
-    for action in puzzle.actions(currentNode.s):
-        #open_list.append(puzzle.step(s=current_state, a=action))
-        newState = puzzle.step(s=currentNode.s, a=action)
-        newNode = node(s=newState,parent=currentNode,cost=currentNode.cost+1,action=action,h=getManhattan(newState))
-        in_closed_list = False
-        for n in closed_list:
-            #if (compareArrays(n.s,newNode.s)):
-            if(n.s == newNode.s):
-                in_closed_list = True
-                break
-
-        if(in_closed_list == False):
-            open_list.append(newNode)
-
-print(currentNode.toString())
-
-elapsed_time = time.time() - start_time
-print("Time: %.1f seconds" % elapsed_time)
-while currentNode != root:
-    actions_list.append(currentNode.action)
-    currentNode = currentNode.parent
-actions_list.reverse()
-print(len(actions_list))
-puzzle.show(a=actions_list)
-'''
+    #Path Travelled by Smoker
+#---------------------------------------------
+    #print the route of the considerate smoker
+    # route = [currentNode]
+    # while not currentNode == rootNode:
+    #     route.append(currentNode.parent)
+    #     currentNode = currentNode.parent
+    # route.reverse()
+    # for node in route:
+    #     print(node.toString())
