@@ -1,0 +1,18 @@
+public class CodePlayer implements Player {
+
+    Action takeTurn(State s, int[] dice){
+        
+        if (Math.max(dice) < 3){
+            return FOLD;
+        }
+        for (int d : dice){
+            if (d < 3){
+                return ROLL;
+            }
+        }
+        return SHOWDOWN;
+    }
+
+    Action  actAtShowdown(State s, int[] dice){
+    }
+}

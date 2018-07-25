@@ -13,6 +13,7 @@ import java.util.*;
 
 public class Golden{
     static int n;
+    static int[] lookup = new int[10];
     public static void main(String[]args){
         Scanner scan = new Scanner(System.in);
         while(true){
@@ -23,11 +24,22 @@ public class Golden{
     }
   
     public static int golden(int d){
-        int h = silver(d, d);
-        if (h % 12 == 0){
-            return 12;
+        if (d > lookup.length){
+            int[] temp = new int[d*2];
+            lookup = temp;
         }
-        return h % 12;
+        if (lookup[d] > 0){
+            System.out.println("d = " + d + ", lookup = " + lookup[d]);
+            return lookup[d];
+        }
+        int h = silver(d,d);
+        lookup[d] = h;
+        if (h % 12 == 0){
+            h = 12;
+        } else {
+            h = h%12;
+        }
+        return h;
     }
   
     public static int silver(int b, int c){
