@@ -8,6 +8,7 @@
 # @since 23 July 2018
 
 import math
+import sys
 
 #A class to hold information about each intersection
 class Node:
@@ -53,16 +54,7 @@ def getStates(currentState, thisWorld):
 ##########################
 #### Main Starts Here ####
 ##########################
-file = None
-while file == None:
-    fileName = input("Enter name of file\n")
-    try:
-        file = open(fileName,"r")
-    except:
-        print("not a valid file name")
-        file = None
-lines = file.readlines()
-file.close()
+lines = sys.stdin.readlines()
 
 minCost = -10000
 worlds = [[]]
@@ -123,7 +115,7 @@ for world in worlds:
 
             if inClosedList == False:
                 openList.append(newNode)
-    print("Min " + str(minCost*(-1)) + ", Total " + str(currentNode.distance))
+    print("min " + str(minCost*(-1)) + ", total " + str(currentNode.distance))
 
     #Path Travelled by Smoker
 #---------------------------------------------
