@@ -19,8 +19,7 @@ FRAC_SIZE = {"s": 23, "d": 52}
 def frac(input_frac, input_p, output_p):
     size = FRAC_SIZE.get(output_p)
 
-    output_frac = int(input_frac, 16)
-    output_frac = bin(output_frac)[2:].zfill(size)
+    output_frac = input_frac.zfill(size)[:size]
 
     return output_frac
 
@@ -28,7 +27,7 @@ def exp(input_exp, input_p, output_p):
     size = EXP_SIZE.get(output_p)
 
     output_exp = int(input_exp, 2) - 64 + EXP_BIAS.get(output_p)
-    output_exp = bin(output_exp)[2:].zfill(size)
+    output_exp = bin(output_exp)[2:].zfill(size)[:size]
 
     return output_exp
 
