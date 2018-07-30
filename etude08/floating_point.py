@@ -35,7 +35,7 @@ def convert(input_num, input_p, output_p, write_file):
     s = input_num[0]
     e = exp(input_num[1], input_p, output_p)
     f = frac(input_num[2], input_p, output_p)
-    output_num = s + e + f
+    output_num = s + "-" + e + "-" + f + "\n"
     write_file.write(output_num)
     
 
