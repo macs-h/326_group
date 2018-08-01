@@ -5,7 +5,7 @@
     echo "s"
     echo "output.txt"
     echo "s"
-} | python floating_point.py > /dev/null
+} | python floating_point.py #> /dev/null
 
 printf "Calling diff on ACTUAL vs EXPECTED output...\n"
 
