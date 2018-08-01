@@ -17,20 +17,28 @@ FRAC_SIZE = {"s": 23, "d": 52}
 
 
 #SUPPORT FUNCTIONS
+def binToFrac(bin):
+    fraction = 0.0
+    for i in range(len(bin)):
+        if(bin[i] =="1"):
+            fraction += pow(2,(-1)*(i+1))
+    return fraction
 
 def frac(input_frac, input_p, output_p):
     size = FRAC_SIZE.get(output_p)
 
-    output_frac = input_frac.zfill(size)[:size]
+    hex_frac = binToFrac(input_frac)
+    print(hex_frac)
+    output_frac = bin(hex_frac)[2:].zfill(size)[:size]
 
     return output_frac
 
 def exp(input_exp, input_p, output_p):
     size = EXP_SIZE.get(output_p)
-    print("> ", int(input_exp, 2) - 64)
+    print("> 16^", int(input_exp, 2) - 64)
     hex_exp = pow(16, int(input_exp, 2) - 64)
     hex_exp = int(log(hex_exp,2))
-    print(hex_exp)
+    print("> 2^",hex_exp)
     output_exp = hex_exp + EXP_BIAS.get(output_p) - (int(input_exp, 2) - 64) # wee bit of a cheeky fix.
     output_exp = bin(output_exp)[2:].zfill(size)[:size]
 
