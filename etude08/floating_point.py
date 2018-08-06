@@ -15,6 +15,52 @@ EXP_BIAS = {"s": 127, "d": 1023}
 EXP_SIZE = {"s": 8, "d": 11}
 FRAC_SIZE = {"s": 23, "d": 52}
 
+#Converting to floating point from decmal code
+#----------------------------------------------
+def toBinfrac(n):
+    precision = 23
+    binString = ""
+    for i in range(precision):
+        n *= 2
+        if int(n) == 1:
+            binString = binString + "1"
+            n -= 1
+        else:
+            binString = binString + "0"
+    #print(n) #might need to change something to make this round ?? maybe
+    return binString
+
+def toFloat(n):
+    binaryString = ""
+    if n >= 0:
+        binaryString = binaryString + "0"
+    else:
+        binaryString = binaryString + "1"
+    #####################
+    ####find exponent####
+    #####################
+    n = abs(n)
+    fraction = n
+    exponent = 0
+    if n < 2:
+        while fraction < 1:
+            exponent -= 1
+            fraction = n/(2**(exponent))
+        # print(exponent,count)
+    else:
+        while fraction >= 2:
+            exponent += 1
+            fraction= n/(2**(exponent))
+        # print(exponent,count)
+    fraction -= 1
+    print(fraction, exponent,bin(exponent))
+    binaryString = binaryString + "-" + bin(exponent+127)[2:].zfill(8)[:8]
+    #####################
+    ####find fraction####
+    #####################
+    binaryString = binaryString + "-" + toBinfrac(fraction)
+    return binaryString
+#-----------------------------------------------
 
 #SUPPORT FUNCTIONS
 def binToFrac(bin):
