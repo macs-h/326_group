@@ -1,3 +1,14 @@
+# E8 - Floating Point
+#
+# @author Tom Adams
+# @author Max Huang
+# @author Mitchie Maluschnig
+# @author Asher Statham
+#
+# @since 30 July 2018
+
+# CONSTANTS
+
 from math import log
 
 EXP_BIAS = {"s": 127, "d": 1023}
@@ -5,7 +16,7 @@ EXP_SIZE = {"s": 8, "d": 11}
 FRAC_SIZE = {"s": 23, "d": 52}
 MIN_SIZE = {"s" : (1.18 * 10**-38), "d" : (2.23 * 10**-308)}
 
-
+#converts binary fraction to a decimal fraction
 def binToFrac(bin):
     fraction = 0.0
     for i in range(len(bin)):
@@ -13,6 +24,7 @@ def binToFrac(bin):
             fraction += pow(2,(-1)*(i+1))
     return fraction
 
+#converts a IBM float to a decimal number
 def fromFloat(binRep):
     s = binRep[0]
     e = binRep[1:8]
@@ -29,6 +41,7 @@ def fromFloat(binRep):
 
 
 #---------------------------------------------------
+#converts a decimal fractoon to a binary fraction
 def toBinfrac(n):
     global output_p
     precision = FRAC_SIZE.get(output_p)
@@ -43,6 +56,7 @@ def toBinfrac(n):
     #print(n) #might need to change something to make this round ?? maybe
     return binString
 
+#converts a dacimal number to a IEEE float
 def toFloat(n):
     global output_p
     binaryString = ""
@@ -50,13 +64,9 @@ def toFloat(n):
         binaryString = binaryString + "0"
     else:
         binaryString = binaryString + "1"
-    #print(MIN_SIZE.get(output_p),n)
     if abs(n) < (MIN_SIZE.get(output_p)):
         return binaryString + "-0000000-000000000000000000000000"
-    print(n)
-    #####################
     ####find exponent####
-    #####################
     n = abs(n)
     fraction = n
     exponent = 0
@@ -69,12 +79,8 @@ def toFloat(n):
             exponent += 1
             fraction= n/(2**(exponent))
     fraction -= 1
-    print(fraction, exponent,bin(exponent)[2:])
     binaryString = binaryString + "-" + bin(exponent+EXP_BIAS.get(output_p))[2:].zfill(EXP_SIZE.get(output_p))[:EXP_SIZE.get(output_p)]
-    #####################
     ####find fraction####
-    #####################
-    print("FRACTION: ",fraction)
     binaryString = binaryString + "-" + toBinfrac(fraction)
     return binaryString
 
@@ -85,7 +91,7 @@ output_file = input("Enter IEEE output file: ")
 output_p = input("Specify IEEE precision: ")
 
 #print(toFloat(fromFloat("01000011001001010111001000000000")))
-#print(toFloat(fromFloat("0111111100100101010000000000001000001000100000001000000010000000")))
+#print(toFloat(fromFloat("0111111100000000000000000000000000000000000000000000000000000000")))
 #print(toFloat(0.15625))
 
 
