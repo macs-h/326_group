@@ -64,4 +64,17 @@ def toFloat(n):
     binaryString = binaryString + "-" + toBinfrac(fraction)
     return binaryString
 
-print(toFloat(fromFloat("11000010011101101010000000000000")))
+#print(toFloat(fromFloat("11000010011101101010000000000000")))
+
+input_file = input("Enter input filename: ")
+input_p = input("Precision (s for single, d for double): ")
+output_file = input("Enter output filename: ")
+output_p = input("Precision (s for single, d for double): ")
+
+with open(input_file) as numbers:
+    write_file = open(output_file, 'w')
+    for number in numbers:
+        write_file.write(toFloat(
+            fromFloat(number)))
+        write_file.write("\n")
+    write_file.close()
