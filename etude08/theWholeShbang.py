@@ -1,4 +1,11 @@
 from math import log
+
+EXP_BIAS = {"s": 127, "d": 1023}
+EXP_SIZE = {"s": 8, "d": 11}
+FRAC_SIZE = {"s": 23, "d": 52}
+MIN_SIZE = {"s" : (1.18 * 10**-38), "d" : (2.23 * 10**-308)}
+
+
 def binToFrac(bin):
     fraction = 0.0
     for i in range(len(bin)):
@@ -23,7 +30,8 @@ def fromFloat(binRep):
 
 #---------------------------------------------------
 def toBinfrac(n):
-    precision = 23
+    global output_p
+    precision = FRAC_SIZE.get(output_p)
     binString = ""
     for i in range(precision):
         n *= 2
@@ -36,11 +44,16 @@ def toBinfrac(n):
     return binString
 
 def toFloat(n):
+    global output_p
     binaryString = ""
     if n >= 0:
         binaryString = binaryString + "0"
     else:
         binaryString = binaryString + "1"
+    #print(MIN_SIZE.get(output_p),n)
+    if abs(n) < (MIN_SIZE.get(output_p)):
+        return binaryString + "-0000000-000000000000000000000000"
+    print(n)
     #####################
     ####find exponent####
     #####################
@@ -57,24 +70,28 @@ def toFloat(n):
             fraction= n/(2**(exponent))
     fraction -= 1
     print(fraction, exponent,bin(exponent)[2:])
-    binaryString = binaryString + "-" + bin(exponent+127)[2:].zfill(8)[:8]
+    binaryString = binaryString + "-" + bin(exponent+EXP_BIAS.get(output_p))[2:].zfill(EXP_SIZE.get(output_p))[:EXP_SIZE.get(output_p)]
     #####################
     ####find fraction####
     #####################
+    print("FRACTION: ",fraction)
     binaryString = binaryString + "-" + toBinfrac(fraction)
     return binaryString
 
-#print(toFloat(fromFloat("11000010011101101010000000000000")))
+global input_p, output_p
+input_file = input("Enter IBM input file: ")
+input_p = input("Specify IBM precision: ")
+output_file = input("Enter IEEE output file: ")
+output_p = input("Specify IEEE precision: ")
 
-input_file = input("Enter input filename: ")
-input_p = input("Precision (s for single, d for double): ")
-output_file = input("Enter output filename: ")
-output_p = input("Precision (s for single, d for double): ")
+#print(toFloat(fromFloat("01000011001001010111001000000000")))
+#print(toFloat(fromFloat("0111111100100101010000000000001000001000100000001000000010000000")))
+#print(toFloat(0.15625))
+
 
 with open(input_file) as numbers:
     write_file = open(output_file, 'w')
     for number in numbers:
-        write_file.write(toFloat(
-            fromFloat(number)))
+        write_file.write(toFloat(fromFloat(number)))
         write_file.write("\n")
     write_file.close()
