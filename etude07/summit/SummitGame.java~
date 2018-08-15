@@ -11,8 +11,8 @@ public class SummitGame {
 
         players.add(0, new HumanPlayer());
         players.add(1, new RollPlayer());
-//        players.add(2, new RandomPlayer());
-//        players.add(3, new RollPlayer());
+        players.add(2, new RandomPlayer());
+        players.add(3, new CodePlayer());
 //        players.add(4, new RandomPlayer());
 //        players.add(5, new RollPlayer());
 

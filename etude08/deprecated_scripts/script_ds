@@ -1,0 +1,14 @@
+#!/bin/bash
+
+{
+    echo "input_files/input_d.txt"
+    echo "d"
+    echo "output.txt"
+    echo "s"
+} | python floating_point.py > /dev/null
+
+printf "Calling diff on ACTUAL vs EXPECTED output...\n"
+
+diff output.txt expected_outputs/output_s.txt
+
+echo ""

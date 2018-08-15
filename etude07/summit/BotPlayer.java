@@ -1,13 +1,27 @@
-public class CodePlayer implements Player {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Set;
+
+public class BotPlayer implements Player {
 
     public Action takeTurn(State s, int[] dice){
-        
         int max = 0;
         for (int d : dice){
             if (d > max){
                 max = d;
             }
         }
+        ArrayList<Integer> players = new ArrayList<Integer>();
+        players.addAll(s.playersRemaining);
+        Object[] opponents = players.toArray();
+        int i = 0;
+        while (opponents[i] != null){
+            if (Collections.min(s.getRolls(i)) < -(dice[2])){
+                return Action.FOLD;
+            }
+            i++;
+        }
+                
         if (max < 3){
             return Action.FOLD;
         }
