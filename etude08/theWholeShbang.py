@@ -9,6 +9,11 @@
 
 # CONSTANTS
 
+<<<<<<< HEAD
+=======
+from math import log
+
+>>>>>>> 53ed6caf0e7efc8afa624a91af11de2e2271ad4b
 EXP_BIAS = {"s": 127, "d": 1023}
 EXP_SIZE = {"s": 8, "d": 11}
 FRAC_SIZE = {"s": 23, "d": 52}
@@ -63,7 +68,11 @@ def toFloat(n):
     else:
         binaryString = binaryString + "1"
     if abs(n) < (MIN_SIZE.get(output_p)):
+<<<<<<< HEAD
         return binaryString + "0000000000000000000000000000000"
+=======
+        return binaryString + "-0000000-000000000000000000000000"
+>>>>>>> 53ed6caf0e7efc8afa624a91af11de2e2271ad4b
     ####find exponent####
     n = abs(n)
     fraction = n
@@ -77,9 +86,15 @@ def toFloat(n):
             exponent += 1
             fraction= n/(2**(exponent))
     fraction -= 1
+<<<<<<< HEAD
     binaryString = binaryString + bin(exponent+EXP_BIAS.get(output_p))[2:].zfill(EXP_SIZE.get(output_p))[:EXP_SIZE.get(output_p)]
     ####find fraction####
     binaryString = binaryString + toBinfrac(fraction)
+=======
+    binaryString = binaryString + "-" + bin(exponent+EXP_BIAS.get(output_p))[2:].zfill(EXP_SIZE.get(output_p))[:EXP_SIZE.get(output_p)]
+    ####find fraction####
+    binaryString = binaryString + "-" + toBinfrac(fraction)
+>>>>>>> 53ed6caf0e7efc8afa624a91af11de2e2271ad4b
     return binaryString
 
 global input_p, output_p
@@ -93,6 +108,7 @@ output_p = input("Specify IEEE precision: ")
 #print(toFloat(0.15625))
 
 
+<<<<<<< HEAD
 with open(input_file, 'r+b') as numbers:
     write_file = open(output_file, 'w+b')
     for number in numbers:
@@ -100,4 +116,11 @@ with open(input_file, 'r+b') as numbers:
         number = toFloat(fromFloat(number)).encode('ascii')
         write_file.write(number)
         write_file.write("\n".encode('ascii'))
+=======
+with open(input_file) as numbers:
+    write_file = open(output_file, 'w')
+    for number in numbers:
+        write_file.write(toFloat(fromFloat(number)))
+        write_file.write("\n")
+>>>>>>> 53ed6caf0e7efc8afa624a91af11de2e2271ad4b
     write_file.close()
