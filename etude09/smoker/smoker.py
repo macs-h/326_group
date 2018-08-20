@@ -32,22 +32,39 @@ def getDist(state1,state2):
 def getCost(currentState,thisWorld):
     smallestDist = 10000
     for n in range(1,len(thisWorld)): #for each non-smoker in the world
-        #dist = getDist(currentState,thisWorld[n])
-        dist = int(math.sqrt(((thisWorld[n][0] - currentState[0])**2) +
-                              ((thisWorld[n][1] - currentState[1])**2)))
+        dist = getDist(currentState,thisWorld[n])
+        # dist = int(math.sqrt(((thisWorld[n][0] - currentState[0])**2) +
+        #                       ((thisWorld[n][1] - currentState[1])**2)))
         if dist < smallestDist:
             smallestDist = dist
     return smallestDist*(-1)
 
-def totalDist(currentState,thisWorld):
+def totalDist(currentState,thisWorld,distArray):
     dist = 0
     for n in range(1,len(thisWorld)): #for each non-smoker in the world
-        dist += int(math.sqrt(((thisWorld[n][0] - currentState[0])**2) +
-                              ((thisWorld[n][1] - currentState[1])**2)))
-    return dist
+        dist = getDist(currentState, thisWorld[n])
+        # dist += int(math.sqrt(((thisWorld[n][0] - currentState[0])**2) +
+        #                       ((thisWorld[n][1] - currentState[1])**2)))
+        if dist < distArray[n-1]:
+            distArray[n-1] = dist
+
+    return distArray
 #straight line distance from current state to the end state
-def getHeuristic(currentState, endState):
-    return math.sqrt(((endState[0] - currentState[0])**2) + ((endState[1] - currentState[1])**2))
+def getHeuristic(currentNode, endState, maxTotalDist):
+
+    lineDist = math.sqrt(((endState[0] - currentNode.state[0])**2) +
+                         ((endState[1] - currentNode.state[1])**2))
+    # lineDist = getDist(endState,currentNode.state)
+
+    # route = [currentNode]
+    # while not currentNode == rootNode:
+    #     route.append(currentNode.parent)
+    #     currentNode = currentNode.parent
+    # route.reverse()
+    # for node in route:
+    #     # print(node.toString())
+    #     maxTotalDist = totalDist(node.state, world, maxTotalDist)
+    return (lineDist) #+ (sum(maxTotalDist))
 
 #returns all the states that can be reached from current state
 def getStates(currentState, thisWorld):
@@ -88,17 +105,14 @@ initState = [0,0]
 for world in worlds:
     if world:
         minCost = -10000
-        maxTotalDist = 0
+        maxTotalDist = [10000]*(len(world)-1)
         openList = []
         closedList = []
         endState = [world[0][1]-1,world[0][0]-1]
 
-        rootNode = Node(initState,None,getCost(initState,world),getHeuristic(initState,endState),0)
+        rootNode = Node(initState,None,getCost(initState,world),10000,0)
         openList.append(rootNode)
         currentNode = rootNode
-
-        if totalDist(currentNode.state,world) > maxTotalDist:
-            maxTotalDist = totalDist(currentNode.state,world)
 
         while not currentNode.state == endState:
             if (currentNode.cost > minCost):
@@ -107,21 +121,20 @@ for world in worlds:
             #find smallest cost+heuristic in open list
             lowestNodeIndex = 0
             for openNode in range(len(openList)):
-                if((openList[openNode].cost*2) +
-                   openList[openNode].heuristic) < ((openList[lowestNodeIndex].cost*2) +
+                if((openList[openNode].cost) +
+                   openList[openNode].heuristic) < ((openList[lowestNodeIndex].cost) +
                                                     openList[lowestNodeIndex].heuristic):
                     lowestNodeIndex = openNode
 
             closedList.append(openList[lowestNodeIndex])
             currentNode = openList.pop(lowestNodeIndex)
-            print(maxTotalDist)
-            if totalDist(currentNode.state, world) > maxTotalDist:
-                maxTotalDist = totalDist(currentNode.state, world)
+
+
 
             newStates = getStates(currentNode.state,world)
 
             for state in newStates:
-                newNode = Node(state,currentNode,getCost(state,world),getHeuristic(state,endState),currentNode.distance+1)
+                newNode = Node(state,currentNode,getCost(state,world),getHeuristic(currentNode,endState,maxTotalDist),currentNode.distance+1)
 
                 inClosedList = False
                 for closeNode in closedList:
@@ -131,7 +144,6 @@ for world in worlds:
 
                 if inClosedList == False:
                     openList.append(newNode)
-        print("min " + str(minCost*(-1)) + ", total " + str(maxTotalDist))
 
 #     Path Travelled by Smoker
 # ---------------------------------------------
@@ -143,3 +155,5 @@ for world in worlds:
     route.reverse()
     for node in route:
         print(node.toString())
+        maxTotalDist = totalDist(node.state, world, maxTotalDist)
+    print("min " + str(minCost * (-1)) + ", total " + str(sum(maxTotalDist)))
