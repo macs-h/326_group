@@ -44,36 +44,48 @@ for line in lines:
     else:
         startTime = time.time()
         end_state = (int(grid[0][1]) - 1, int(grid[0][0]) - 1)
-        all_nodes = []
+        all_nodes = {}
+        open_nodes = []
         non_smokers = []
-        results = (0, 0)
+        results = (-1, -1)
 
         for i in range(1, len(grid)):
             non_smokers.append((int(grid[i][0]), int(grid[i][1])))
         root = Node((0, 0), [1000]*len(non_smokers), non_smokers)
 
-        all_nodes.append(root)
-        while all_nodes:
-            node = all_nodes.pop(0)
+        open_nodes.append(root)
+        while open_nodes:
+            node = open_nodes.pop(0)
 
             node_min = node.get_min()
             node_total = node.get_total()
 
             if node.unchanged:
-                if node_min > results[0] or (node_min == results[0] and node_total > results[1]):#prioritise node_min
+                if node_min > results[0] or (node_min == results[0] and node_total > results[1]):
                     results = (node_min, node_total)
+            elif node_min != 0:
+                if not node.state in all_nodes:
+                    all_nodes[node.state] = (node_min, node_total)
 
-            elif node_min != 0 or node_min >= results[0]:
-                if node.state[0] < end_state[0]:
-                    side_node = Node((node.state[0] + 1, node.state[1]),\
-                    node.distances.copy(), non_smokers)
-                    all_nodes.insert(0, side_node)
-                if node.state[1] < end_state[1]:
-                    down_node = Node((node.state[0], node.state[1] + 1),\
-                    node.distances.copy(), non_smokers)
-                    all_nodes.insert(0, down_node)
+                if node_min >= all_nodes[node.state][0] or (node_min == all_nodes[node.state][0] and node_total >= all_nodes[node.state][1]):
+                    all_nodes[node.state] = (node_min, node_total)
 
-        
+                    side_node = Node((node.state[0] + 1, node.state[1]), node.distances.copy(), non_smokers)
+                    down_node = Node((node.state[0], node.state[1] + 1), node.distances.copy(), non_smokers)
+
+                    if side_node.get_min() > down_node.get_min():
+                        if node.state[0] <= end_state[0]:
+                            open_nodes.insert(0, side_node)
+                    elif side_node.get_min() < down_node.get_min():
+                        if node.state[1] <= end_state[1]:
+                            open_nodes.insert(0, down_node)
+                    else:
+                        if node.state[0] <= end_state[0]:
+                            open_nodes.insert(0, side_node)
+                        if node.state[1] <= end_state[1]:
+                            open_nodes.insert(0, down_node)
+
+
         print("min %d, total %d" % results)
         print(str(int((time.time() - startTime) / 60)) + " min " + str(int(time.time() - startTime) % 60) + " sec")
         grid = []
