@@ -98,10 +98,24 @@ output_p = input("Specify IEEE precision: ")
 
 with open(input_file, 'rb') as numbers:
     write_file = open(output_file, 'wb')
+    #-------ignore till...
+    # newnum = 0
+    # tmpString = ''
     for number in numbers:
+    #     print(hex(557910095))
+    #     for n in range(4):
+    #         print(number[n])
+    #         currnum = str(int(number[n]/16)) + str(hex(number[n]%16))
+    #         print("curr",currnum)
+    #         tmpString += str(currnum)
+    #     print(hex(int(tmpString)))
+    #     print(newnum)
+    #     print("to hex",hex(number))
+        #---...here
         number = number.decode('ascii')
-        number = toFloat(fromFloat(number)).encode('ascii')
-        write_file.write(number)
-        write_file.write("\n".encode('ascii'))
+        #number = toFloat(fromFloat(number)).encode('ascii')
+        #write_file.write(number)
+        #write_file.write("\n".encode('ascii'))
+        print(number)
 
     write_file.close()
