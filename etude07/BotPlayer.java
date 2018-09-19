@@ -12,7 +12,7 @@ public class BotPlayer implements Player {
             return Action.FOLD;
         }
         for (int d : dice){
-            if (d < 3){
+            if (d < 4){
                 return Action.ROLL;
             }
         }
