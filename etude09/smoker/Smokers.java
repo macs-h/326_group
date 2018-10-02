@@ -4,21 +4,21 @@ import java.io.*;
 public class Smokers extends Node{
   private static int heuristic;
   private static LinkedList<Node> queue = new LinkedList<Node>();
+  private static int x, y, path;
   
   public static void main(String[]args) throws FileNotFoundException, IOException{
     File file = new File(args[0]);
     Scanner scan = new Scanner(file);
     while (true){
-      int x = 0;
-      int y = 0;
       if (scan.hasNextLine()){
         x = scan.nextInt();
         y = scan.nextInt();
       }
-      Node[][] smokers = new Node[x][y];
+      ArrayList<Node> smokers = new ArrayList<Node>();
       for (int i = 0; i < y; i++){
         for (int j = 0; j < x; j++){
-          smokers[i][j] = new Node(i, j, false);
+          Node node = new Node(j, i, false);
+          smokers.add(node);
         }
       }
       heuristic = x+y;
@@ -29,10 +29,12 @@ public class Smokers extends Node{
           String[] coords = line.split("\\s+");
           int i = Integer.parseInt(coords[0]);
           int j = Integer.parseInt(coords[1]);
-          smokers[j][i].setX(i);
-          smokers[j][i].setY(j);
-          smokers[j][i].setBlocked();
-          queue.add(smokers[j][i]);
+          for (Node node : smokers){
+            if (node.getX() == i && node.getY() == j){
+              node.setBlocked();
+              queue.add(node);
+            }
+          }
         } else {
           break;
         }
@@ -46,59 +48,82 @@ public class Smokers extends Node{
     }
   }
   
-  public static void voronoi(Node[][] smokers){
-    Node[][] temp = smokers;
+  public static void voronoi(ArrayList<Node> smokers){
+    ArrayList<Node> temp = smokers;
     while (queue.size() > 0){
       Node current = queue.remove();
-      if (current.getX()+1 < smokers[0].length &&!smokers[current.getY()][current.getX()+1].getBlocked()){
-        smokers[current.getY()][current.getX()+1].setBlocked();
-        if (!pathfinder(smokers)){
-          smokers[current.getY()][current.getX()+1].setBlocked();
-        } else {
-          queue.add(smokers[current.getY()][current.getX()+1]);
+      for (Node node : smokers){
+        if (node.getX() == current.getX()+1 && node.getY() == current.getY()){
+          if (current.getX()+1 < x && !node.getBlocked()){
+            node.setBlocked();
+            if (!pathfinder(smokers)){
+              node.setBlocked();
+            } else {
+              queue.add(node);
+            }
+          }
         }
       }
-      if (current.getX()-1 > -1 && !smokers[current.getY()][current.getX()-1].getBlocked()){
-        smokers[current.getY()][current.getX()-1].setBlocked();
-        if (!pathfinder(smokers)){
-          smokers[current.getY()][current.getX()-1].setBlocked();
-        } else {
-          queue.add(smokers[current.getY()][current.getX()-1]);
+      for (Node node : smokers){
+        if (node.getX() == current.getX()-1 && node.getY() == current.getY()){
+          if (current.getX()-1 > -1 && !node.getBlocked()){
+            node.setBlocked();
+            if (!pathfinder(smokers)){
+              node.setBlocked();
+            } else {
+              queue.add(node);
+            }
+          }
         }
       }
-      if (current.getY()+1 < smokers.length && !smokers[current.getY()+1][current.getX()].getBlocked()){
-        smokers[current.getY()+1][current.getX()].setBlocked();
-        if (!pathfinder(smokers)){
-          smokers[current.getY()+1][current.getX()].setBlocked();
-        } else {
-          queue.add(smokers[current.getY()+1][current.getX()]);
+      for (Node node : smokers){
+        if (node.getX() == current.getX() && node.getY() == current.getY()+1){
+          if (current.getY()+1 < y && !node.getBlocked()){
+            node.setBlocked();
+            if (!pathfinder(smokers)){
+              node.setBlocked();
+            } else {
+              queue.add(node);
+            }
+          }
         }
       }
-      if (current.getY()-1 > -1 && !smokers[current.getY()-1][current.getX()].getBlocked()){
-        smokers[current.getY()-1][current.getX()].setBlocked();
-        if (!pathfinder(smokers)){
-          smokers[current.getY()-1][current.getX()].setBlocked();
-        } else {
-          queue.add(smokers[current.getY()-1][current.getX()]);
+      for (Node node : smokers){
+        if (node.getX() == current.getX() && node.getY() == current.getY()-1){
+          if (current.getY()-1 > -1 && !node.getBlocked()){
+            node.setBlocked();
+            if (!pathfinder(smokers)){
+              node.setBlocked();
+            } else {
+              queue.add(node);
+            }
+          }
         }
       }
     }
-    for (int x = 0; x < smokers[0].length; x++){
-      for (int y = 0; y < smokers.length; y++){
-        if (smokers[y][x].getBlocked() != temp[y][x].getBlocked()){
+    for (Node node : smokers){
+      for (Node n : temp){
+        if (node.getX() == n.getX() && node.getY() == n.getY()){
+        if (node.getBlocked() != n.getBlocked()){
           voronoi(smokers);
           return;
+        }
         }
       }
     }
   }
   
-  public static boolean pathfinder(Node[][] smokers){
+  public static boolean pathfinder(ArrayList<Node> smokers){
+    path = 0;
     LinkedList<Node> open = new LinkedList<Node>();
     ArrayList<Node> closed = new ArrayList<Node>();
     ArrayList<Node> successors = new ArrayList<Node>();
-    if (!smokers[0][0].getBlocked()){
-      open.add(smokers[0][0]);
+    for (Node node : smokers){
+      if (node.getX() == 0 && node.getY() == 0){
+        if (!node.getBlocked()){
+          open.add(node);
+        }
+      }
     }
     while (!open.isEmpty()){
       Node current;
@@ -116,45 +141,61 @@ public class Smokers extends Node{
         }
         current = open.remove(j);
       }
-      if (current.getX()+1 < smokers[0].length && !smokers[current.getX()+1][current.getY()].getBlocked()){
-        for (Node c : closed){
-          if (c.getX() == smokers[current.getX()+1][current.getY()].getX() && c.getY() == smokers[current.getX()+1][current.getY()].getY()){
-            break;
+      for (Node node : smokers){
+        if (node.getX() == current.getX()+1 && node.getY() == current.getY()){
+          if (current.getX()+1 < x && !node.getBlocked()){
+            for (Node c : closed){
+              if (c.getX() == node.getX() && c.getY() == node.getY()){
+                break;
+              }
+            }
+            node.setParent(current);
+            successors.add(node);
           }
         }
-        smokers[current.getX()+1][current.getY()].setParent(current);
-        successors.add(smokers[current.getX()+1][current.getY()]);
       }
-      if (current.getX()-1 > -1 && !smokers[current.getX()-1][current.getY()].getBlocked()){
-        for (Node c : closed){
-          if (c.getX() == smokers[current.getX()-1][current.getY()].getX() && c.getY() == smokers[current.getX()-1][current.getY()].getY()){
-            break;
+      for (Node node : smokers){
+        if (node.getX() == current.getX()-1 && node.getY() == current.getY()){
+          if (current.getX()-1 > -1 && !node.getBlocked()){
+            for (Node c : closed){
+              if (c.getX() == node.getX() && c.getY() == node.getY()){
+                break;
+              }
+            }
+            node.setParent(current);
+            successors.add(node);
           }
         }
-        smokers[current.getX()-1][current.getY()].setParent(current);
-        successors.add(smokers[current.getX()-1][current.getY()]);
       }
-      if (current.getY()+1 < smokers.length && !smokers[current.getX()][current.getY()+1].getBlocked()){
-        for (Node c : closed){
-          if (c.getX() == smokers[current.getX()][current.getY()+1].getX() && c.getY() == smokers[current.getX()][current.getY()+1].getY()){
-            break;
+      for (Node node : smokers){
+        if (node.getX() == current.getX() && node.getY() == current.getY()+1){
+          if (current.getY()+1 < y && !node.getBlocked()){
+            for (Node c : closed){
+              if (c.getX() == node.getX() && c.getY() == node.getY()){
+                break;
+              }
+            }
+            node.setParent(current);
+            successors.add(node);
           }
         }
-        smokers[current.getX()][current.getY()+1].setParent(current);
-        successors.add(smokers[current.getX()][current.getY()+1]);
       }
-      if (current.getY()-1 > -1 && !smokers[current.getX()][current.getY()-1].getBlocked()){
-        for (Node c : closed){
-          if (c.getX() == smokers[current.getX()][current.getY()-1].getX() && c.getY() == smokers[current.getX()][current.getY()-1].getY()){
-            break;
+      for (Node node : smokers){
+        if (node.getX() == current.getX() && node.getY() == current.getY()-1){
+          if (current.getY()-1 > -1 && !node.getBlocked()){
+            for (Node c : closed){
+              if (c.getX() == node.getX() && c.getY() == node.getY()){
+                break;
+              }
+            }
+            node.setParent(current);
+            successors.add(node);
           }
         }
-        smokers[current.getX()][current.getY()-1].setParent(current);
-        successors.add(smokers[current.getX()][current.getY()-1]);
       }
       for (Node successor : successors){
         boolean found = false;
-        if (successor.getX() == smokers[0].length-1 && successor.getY() == smokers.length-1){
+        if (successor.getX() == x-1 && successor.getY() == y-1){
           return true;
         }
         for (Node o : open){
@@ -178,10 +219,15 @@ public class Smokers extends Node{
     return false;
   }
   
-  public static void printWorld(Node[][] smokers){
-    for (Node[] row : smokers){
-      for (Node n : row){
-        System.out.print(n.getBlocked() + " ");
+  public static void printWorld(ArrayList<Node> smokers){
+    System.out.println(path);
+    for (int i = 0; i < y; i++){
+      for (int j = 0; j < x; j++){
+        for (Node n : smokers){
+          if (n.getX() == j && n.getY() == i){
+            System.out.print(n.getBlocked() + "\t");
+          }
+        }
       }
       System.out.println();
     }
