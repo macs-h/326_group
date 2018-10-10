@@ -1,9 +1,4 @@
-
-
-def checkFirstByte(byte):
-    if byte[0] > 127:
-        return (byte[0] - 128) * (-1)
-    return byte[0]
+from array import *
 
 # MAIN
 
@@ -45,21 +40,46 @@ with open(input_file,"rb") as numbers:
     for number in numberArray:
         # string masking !
         print("number", number)
-        if number[:1] == '1':
-            sign = -1
-        else:
-            sign = 1
+        sign = number[:1]
         print("sign:", sign)
         exponent = number[1:8]
         print("exponent:", exponent)
         fraction = number[8:]
         print("fraction:", fraction)
-        print("")
+
 
         #Do things with our binary strings
-        newExponent = ((int(exponent, 2) - 64) * 4) + 125  # multiplying by 4 means we are in base 2 not 16
-        newExponent = bin(newExponent)[2:].zfill(8)
-        print(newExponent)
 
+        # exponent stuff
+        # newExponent = ((int(exponent, 2) - 64) << 2)
+        # finds the amount that the fraction needs to be shifted left
+        count = 1
+        for b in fraction:
+            if b == '1':
+                break
+            count += 1
+        print("count", count)
+        newExponent = ((int(exponent, 2) - 64) << 2) - count + 127
+        newExponent = bin(newExponent)[2:].zfill(8)
+        print("newExponent",newExponent)
+
+        # fraction stuff
+        newFraction = fraction[count:].ljust(23,'0')
+        print("newFraction", newFraction)
+
+
+        #write to file
+        signedExponent = sign + newExponent[:-1]
+        print("first byte", bin(int(signedExponent,2)))
+        print(signedExponent.encode())
+        bin_array = array('B')
+        bin_array.append(int(signedExponent,2))
+        bin_array.append(int(newExponent[-1:]+newFraction[:7],2))
+        bin_array.append(int(newFraction[7:15],2))
+        bin_array.append(int(newFraction[15:], 2))
+        bin_array.tofile(write_file)
+
+
+        print("")
 
     write_file.close()
