@@ -41,10 +41,15 @@ def convert(input_num, input_p, output_p, write_file):
 
 # MAIN
 
-input_file = input("Enter input filename: ")
-input_p = input("Precision (s for single, d for double): ")
-output_file = input("Enter output filename: ")
-output_p = input("Precision (s for single, d for double): ")
+# input_file = input("Enter input filename: ")
+# input_p = input("Precision (s for single, d for double): ")
+# output_file = input("Enter output filename: ")
+# output_p = input("Precision (s for single, d for double): ")
+input_file = 'input.txt'
+input_p = 's'
+output_file = 'output.txt'
+output_p = 's'
+
 
 with open(input_file) as numbers:
     write_file = open(output_file, 'w')
