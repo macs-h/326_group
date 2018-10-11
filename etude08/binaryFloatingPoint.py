@@ -99,7 +99,7 @@ with open(input_file,"rb") as numbers:
                 bin_array.append(0)
                 bin_array.append(0)
                 bin_array.append(0)
-
+            bin_array.reverse()
             bin_array.tofile(write_file)
 
         # checks whether the IBM number is smaller than IEEE could represent and
@@ -127,6 +127,7 @@ with open(input_file,"rb") as numbers:
                 bin_array.append(0)
                 bin_array.append(0)
                 bin_array.append(0)
+            bin_array.reverse()
             bin_array.tofile(write_file)
 
 
@@ -163,6 +164,7 @@ with open(input_file,"rb") as numbers:
                 bin_array.append(int(newFraction[28:36], 2))
                 bin_array.append(int(newFraction[36:44], 2))
                 bin_array.append(int(newFraction[44:], 2))
+            bin_array.reverse()
             bin_array.tofile(write_file)
 
         elif (not '1' in newExponent) and ('1' in newFraction):
