@@ -11,83 +11,73 @@ FRAC_SIZE = {"s": 23, "d": 52}
 
 # MAIN
 
-# input_file = input("Enter input filename: ")
-# input_p = input("Precision (s for single, d for double): ")
-# output_file = input("Enter output filename: ")
-# output_p = input("Precision (s for single, d for double): ")
-input_file = 'input_d.txt'
-input_p = 'd'
-output_file = 'output.txt'
-output_p = 's'
+input_file = input("Enter input filename: ")
+input_p = input("Precision (s for single, d for double): ")
+output_file = input("Enter output filename: ")
+output_p = input("Precision (s for single, d for double): ")
+# input_file = 'input_s.txt'
+# input_p = 's'
+# output_file = 'output.txt'
+# output_p = 's'
 
 bytes = []
 numberArray = []
 with open(input_file,"rb") as numbers:
     write_file = open(output_file, 'wb')
     byte = numbers.read(BYTE_SIZE[input_p])
-    # print("firstByte",checkFirstByte(byte))
-    # byte = numbers.read(1)
-    # fraction = numbers.read(3)
 
-
-    # print(bin(int(fraction))[2:])
     while byte != b"":
-        # for i in range(4):
-        #     bytes.append(bin(byte[i]))
 
         fraction = int.from_bytes(byte, 'big')
         byte = numbers.read(BYTE_SIZE[input_p])
         number = bin(int(fraction))[2:].zfill(BIT_SIZE[input_p])
 
         numberArray.append(number)
-        # look! heres how you mask thing ( now lets never use it agan)
-        # print(number)
-        # print(bin(2**31))
-        # sign = int(bin(2**31),2) & int(number,2)
-        # print(int(bin(2**3),2) & int(bin(2**3),2))
-        # print(bin(sign))
+
     for number in numberArray:
         # string masking !
-        print("number", number)
+        # print("number", number)
         sign = number[:1]
-        print("sign:", sign)
+        # print("sign:", sign)
         exponent = number[1:8]
-        print("exponent:", exponent)
+        # print("exponent:", exponent)
         fraction = number[8:]
-        print("fraction:", fraction)
-
+        # print("fraction:", fraction)
 
         #Do things with our binary strings
 
-        # exponent stuff
-        # newExponent = ((int(exponent, 2) - 64) << 2)
+        # exponent stuff - removes the IBM bias, shifts right to accommodate for
+        # base 2 (instead of base 16), minuses the ammount that the fraction needs
+        # to be shifted and adds the IEEE bias.
+
         # finds the amount that the fraction needs to be shifted left
         count = 1
         for b in fraction:
             if b == '1':
                 break
             count += 1
-        print("count", count)
-        # if input_p == 's':
+        # print("count", count)
         newExponent = ((int(exponent, 2) - 64) << 2) - count + EXP_BIAS[output_p]
-        # else:
-        #     print(int(exponent,2))
-        #     newExponent = ((int(exponent, 2) - 512) << 2) - count + EXP_BIAS[output_p]
 
+        # accomodates for a negative binary value
         if newExponent < 0:
             newExponent = "-" + bin(newExponent)[3:].zfill(EXP_SIZE[output_p])
         else:
             newExponent = bin(newExponent)[2:].zfill(EXP_SIZE[output_p])
-        print("newExponent",newExponent)
+        # print("newExponent",newExponent)
 
-        # fraction stuff
+
+        # fraction stuff - shifts the fractin till the first 1 is in frot of the
+        # decimal point and padds zeros.
         newFraction = fraction[count:].ljust(FRAC_SIZE[output_p],'0')
-        print("newFraction", newFraction)
+        # print("newFraction", newFraction)
 
-        print("exp",int(newExponent,2),"frac",int(newFraction,2))
+        # print("exp",int(newExponent,2),"frac",int(newFraction,2))
 
+        # checks whether the IBM number is larger than IEEE could represent and
+        # if so, it converts it to infinity.
         if int(newExponent, 2) > EXP_MAX[output_p]:
-            print("tooLarge caught: converting to Infinity")
+            # print("tooLarge caught: converting to Infinity")
             bin_array = array('B')
             if output_p == 's':
                 newExponent = bin(255)[2:]
@@ -112,8 +102,10 @@ with open(input_file,"rb") as numbers:
 
             bin_array.tofile(write_file)
 
+        # checks whether the IBM number is smaller than IEEE could represent and
+        # if so, it converts it to zero.
         if int(newExponent, 2) < 0:
-            print("tooSmall caught: converting to Zero")
+            # print("tooSmall caught: converting to Zero")
             bin_array = array('B')
             if output_p == 's':
                 newExponent = ''.ljust(8,'0')
@@ -141,16 +133,18 @@ with open(input_file,"rb") as numbers:
 
         if int(newExponent,2) == EXP_MAX[output_p] and ('1' in newFraction):
             # exponent = 255, fraction != 0
-            print("case 1: NaN")
+            # print("case 1: NaN")
             # no nan in etude? i think
+            pass
 
         elif (int(newExponent,2) == EXP_MAX[output_p]) and (not '1' in newFraction):
             # exponent = 255, fraction = 0
-            print("case 2: infinity")
+            # print("case 2: infinity")
+            pass
 
         elif int(newExponent,2) < EXP_MAX[output_p] and int(newExponent,2) > 0:
             # 0 < exponent < 255
-            print("case 3: floating point number")
+            # print("case 3: floating point number")
             #write to file
             bin_array = array('B')
             if output_p == 's':
@@ -173,17 +167,20 @@ with open(input_file,"rb") as numbers:
 
         elif (not '1' in newExponent) and ('1' in newFraction):
             # exponent = 0, fraction != 0
-            print("case 4: denormalized")
+            # print("case 4: denormalized")
+            pass
 
         elif (not '1' in newExponent) and (not '1' in newFraction):
             # exponent = 0, fraction = 0
-            print("case 5: zero")
+            # print("case 5: zero")
+            pass
 
         else:
-            print("Somethiing went terribly wrong")
+            pass
+            # print("Somethiing went terribly wrong")
 
 
 
-        print("")
+        # print("")
 
     write_file.close()
