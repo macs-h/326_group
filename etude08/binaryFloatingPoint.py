@@ -1,13 +1,22 @@
 from array import *
 
+# CONSTANTS
+
+BYTE_SIZE = {"s":4, "d":8}
+BIT_SIZE = {"s":32, "d":64}
+EXP_BIAS = {"s": 127, "d": 1023}
+EXP_MAX = {'s':255, "d":2047}
+EXP_SIZE = {"s": 8, "d": 11}
+FRAC_SIZE = {"s": 23, "d": 52}
+
 # MAIN
 
 # input_file = input("Enter input filename: ")
 # input_p = input("Precision (s for single, d for double): ")
 # output_file = input("Enter output filename: ")
 # output_p = input("Precision (s for single, d for double): ")
-input_file = 'input.txt'
-input_p = 's'
+input_file = 'input_d.txt'
+input_p = 'd'
 output_file = 'output.txt'
 output_p = 's'
 
@@ -15,7 +24,7 @@ bytes = []
 numberArray = []
 with open(input_file,"rb") as numbers:
     write_file = open(output_file, 'wb')
-    byte = numbers.read(4)
+    byte = numbers.read(BYTE_SIZE[input_p])
     # print("firstByte",checkFirstByte(byte))
     # byte = numbers.read(1)
     # fraction = numbers.read(3)
@@ -27,8 +36,8 @@ with open(input_file,"rb") as numbers:
         #     bytes.append(bin(byte[i]))
 
         fraction = int.from_bytes(byte, 'big')
-        byte = numbers.read(4)
-        number = bin(int(fraction))[2:].zfill(32)
+        byte = numbers.read(BYTE_SIZE[input_p])
+        number = bin(int(fraction))[2:].zfill(BIT_SIZE[input_p])
 
         numberArray.append(number)
         # look! heres how you mask thing ( now lets never use it agan)
@@ -59,65 +68,107 @@ with open(input_file,"rb") as numbers:
                 break
             count += 1
         print("count", count)
-        newExponent = ((int(exponent, 2) - 64) << 2) - count + 127
+        # if input_p == 's':
+        newExponent = ((int(exponent, 2) - 64) << 2) - count + EXP_BIAS[output_p]
+        # else:
+        #     print(int(exponent,2))
+        #     newExponent = ((int(exponent, 2) - 512) << 2) - count + EXP_BIAS[output_p]
+
         if newExponent < 0:
-            newExponent = "-" + bin(newExponent)[3:].zfill(8)
+            newExponent = "-" + bin(newExponent)[3:].zfill(EXP_SIZE[output_p])
         else:
-            newExponent = bin(newExponent)[2:].zfill(8)
+            newExponent = bin(newExponent)[2:].zfill(EXP_SIZE[output_p])
         print("newExponent",newExponent)
 
         # fraction stuff
-        newFraction = fraction[count:].ljust(23,'0')
+        newFraction = fraction[count:].ljust(FRAC_SIZE[output_p],'0')
         print("newFraction", newFraction)
 
         print("exp",int(newExponent,2),"frac",int(newFraction,2))
 
-        if int(newExponent, 2) > 255:
+        if int(newExponent, 2) > EXP_MAX[output_p]:
             print("tooLarge caught: converting to Infinity")
             bin_array = array('B')
-            newExponent = bin(255)[2:]
-            newFraction = ''.ljust(23,'0')
-            # each of these appends a byte to the array
-            bin_array.append(int(sign + newExponent[:-1], 2))
-            bin_array.append(int(newExponent[-1:] + '0000000', 2))
-            bin_array.append(0)
-            bin_array.append(0)
+            if output_p == 's':
+                newExponent = bin(255)[2:]
+                newFraction = ''.ljust(23,'0')
+                # each of these appends a byte to the array
+                bin_array.append(int(sign + newExponent[:-1], 2))
+                bin_array.append(int(newExponent[-1:] + '0000000', 2))
+                bin_array.append(0)
+                bin_array.append(0)
+            else:
+                newExponent = bin(2047)[2:]
+                newFraction = ''.ljust(52,'0')
+
+                bin_array.append(int(sign + newExponent[:-4], 2))
+                bin_array.append(int(newExponent[-4:] + '0000', 2))
+                bin_array.append(0)
+                bin_array.append(0)
+                bin_array.append(0)
+                bin_array.append(0)
+                bin_array.append(0)
+                bin_array.append(0)
 
             bin_array.tofile(write_file)
 
         if int(newExponent, 2) < 0:
-            sign = '1'
             print("tooSmall caught: converting to Zero")
-            newExponent = ''.ljust(8,'0')
-            newFraction = ''.ljust(23, '0')
             bin_array = array('B')
-            bin_array.append(int(sign + '0000000', 2))
-            bin_array.append(0)
-            bin_array.append(0)
-            bin_array.append(0)
+            if output_p == 's':
+                newExponent = ''.ljust(8,'0')
+                newFraction = ''.ljust(23, '0')
+
+                bin_array.append(int(sign + '0000000', 2))
+                bin_array.append(0)
+                bin_array.append(0)
+                bin_array.append(0)
+            else:
+                newExponent = ''.ljust(11, '0')
+                newFraction = ''.ljust(52, '0')
+
+                bin_array.append(int(sign + '0000000', 2))
+                bin_array.append(0)
+                bin_array.append(0)
+                bin_array.append(0)
+                bin_array.append(0)
+                bin_array.append(0)
+                bin_array.append(0)
+                bin_array.append(0)
             bin_array.tofile(write_file)
 
 
 
-        if int(newExponent,2) == 255 and ('1' in newFraction):
+        if int(newExponent,2) == EXP_MAX[output_p] and ('1' in newFraction):
             # exponent = 255, fraction != 0
             print("case 1: NaN")
             # no nan in etude? i think
 
-        elif (int(newExponent,2) == 255) and (not '1' in newFraction):
+        elif (int(newExponent,2) == EXP_MAX[output_p]) and (not '1' in newFraction):
             # exponent = 255, fraction = 0
             print("case 2: infinity")
 
-        elif int(newExponent,2) < 255 and int(newExponent,2) > 0:
+        elif int(newExponent,2) < EXP_MAX[output_p] and int(newExponent,2) > 0:
             # 0 < exponent < 255
             print("case 3: floating point number")
             #write to file
             bin_array = array('B')
-            # each of these appends a byte to the array
-            bin_array.append(int(sign + newExponent[:-1],2))
-            bin_array.append(int(newExponent[-1:]+newFraction[:7],2))
-            bin_array.append(int(newFraction[7:15],2))
-            bin_array.append(int(newFraction[15:], 2))
+            if output_p == 's':
+                # each of these appends a byte to the array
+                bin_array.append(int(sign + newExponent[:-1],2))
+                bin_array.append(int(newExponent[-1:]+newFraction[:7],2))
+                bin_array.append(int(newFraction[7:15],2))
+                bin_array.append(int(newFraction[15:], 2))
+
+            else:
+                bin_array.append(int(sign + newExponent[:-4], 2))
+                bin_array.append(int(newExponent[-4:] + newFraction[:4], 2))
+                bin_array.append(int(newFraction[4:12], 2))
+                bin_array.append(int(newFraction[12:20], 2))
+                bin_array.append(int(newFraction[20:28], 2))
+                bin_array.append(int(newFraction[28:36], 2))
+                bin_array.append(int(newFraction[36:44], 2))
+                bin_array.append(int(newFraction[44:], 2))
             bin_array.tofile(write_file)
 
         elif (not '1' in newExponent) and ('1' in newFraction):
