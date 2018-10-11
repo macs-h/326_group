@@ -60,24 +60,77 @@ with open(input_file,"rb") as numbers:
             count += 1
         print("count", count)
         newExponent = ((int(exponent, 2) - 64) << 2) - count + 127
-        newExponent = bin(newExponent)[2:].zfill(8)
+        if newExponent < 0:
+            newExponent = "-" + bin(newExponent)[3:].zfill(8)
+        else:
+            newExponent = bin(newExponent)[2:].zfill(8)
         print("newExponent",newExponent)
 
         # fraction stuff
         newFraction = fraction[count:].ljust(23,'0')
         print("newFraction", newFraction)
 
+        print("exp",int(newExponent,2),"frac",int(newFraction,2))
 
-        #write to file
-        signedExponent = sign + newExponent[:-1]
-        print("first byte", bin(int(signedExponent,2)))
-        print(signedExponent.encode())
-        bin_array = array('B')
-        bin_array.append(int(signedExponent,2))
-        bin_array.append(int(newExponent[-1:]+newFraction[:7],2))
-        bin_array.append(int(newFraction[7:15],2))
-        bin_array.append(int(newFraction[15:], 2))
-        bin_array.tofile(write_file)
+        if int(newExponent, 2) > 255:
+            print("tooLarge caught: converting to Infinity")
+            bin_array = array('B')
+            newExponent = bin(255)[2:]
+            newFraction = ''.ljust(23,'0')
+            # each of these appends a byte to the array
+            bin_array.append(int(sign + newExponent[:-1], 2))
+            bin_array.append(int(newExponent[-1:] + '0000000', 2))
+            bin_array.append(0)
+            bin_array.append(0)
+
+            bin_array.tofile(write_file)
+
+        if int(newExponent, 2) < 0:
+            sign = '1'
+            print("tooSmall caught: converting to Zero")
+            newExponent = ''.ljust(8,'0')
+            newFraction = ''.ljust(23, '0')
+            bin_array = array('B')
+            bin_array.append(int(sign + '0000000', 2))
+            bin_array.append(0)
+            bin_array.append(0)
+            bin_array.append(0)
+            bin_array.tofile(write_file)
+
+
+
+        if int(newExponent,2) == 255 and ('1' in newFraction):
+            # exponent = 255, fraction != 0
+            print("case 1: NaN")
+            # no nan in etude? i think
+
+        elif (int(newExponent,2) == 255) and (not '1' in newFraction):
+            # exponent = 255, fraction = 0
+            print("case 2: infinity")
+
+        elif int(newExponent,2) < 255 and int(newExponent,2) > 0:
+            # 0 < exponent < 255
+            print("case 3: floating point number")
+            #write to file
+            bin_array = array('B')
+            # each of these appends a byte to the array
+            bin_array.append(int(sign + newExponent[:-1],2))
+            bin_array.append(int(newExponent[-1:]+newFraction[:7],2))
+            bin_array.append(int(newFraction[7:15],2))
+            bin_array.append(int(newFraction[15:], 2))
+            bin_array.tofile(write_file)
+
+        elif (not '1' in newExponent) and ('1' in newFraction):
+            # exponent = 0, fraction != 0
+            print("case 4: denormalized")
+
+        elif (not '1' in newExponent) and (not '1' in newFraction):
+            # exponent = 0, fraction = 0
+            print("case 5: zero")
+
+        else:
+            print("Somethiing went terribly wrong")
+
 
 
         print("")
