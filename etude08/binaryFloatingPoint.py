@@ -103,8 +103,56 @@ with open(input_file,"rb") as numbers:
             bin_array.tofile(write_file)
 
         # checks whether the IBM number is smaller than IEEE could represent and
+        # if so, it converts it to denormalized number.
+        elif int(newExponent, 2) < 0 and int(newExponent, 2) >= -7:
+            bin_array = array('B')
+            # shift fraction bit
+            if output_p == 's':
+                newExponent = ''.ljust(8,'0')
+                newFraction = bin(int(newFraction,2) >> (int(newExponent,2)*(-1)))
+
+                bin_array.append(int(sign + newExponent[:-1], 2))
+                bin_array.append(int(newExponent[-1:] + newFraction[:7], 2))
+                bin_array.append(int(newFraction[7:15], 2))
+                bin_array.append(int(newFraction[15:], 2))
+            else:
+                newExponent = ''.ljust(11, '0')
+                newFraction = bin(int(newFraction, 2) >> (int(newExponent, 2) * (-1)))
+
+                bin_array.append(int(sign + newExponent[:-4], 2))
+                bin_array.append(int(newExponent[-4:] + newFraction[:4], 2))
+                bin_array.append(int(newFraction[4:12], 2))
+                bin_array.append(int(newFraction[12:20], 2))
+                bin_array.append(int(newFraction[20:28], 2))
+                bin_array.append(int(newFraction[28:36], 2))
+                bin_array.append(int(newFraction[36:44], 2))
+                bin_array.append(int(newFraction[44:], 2))
+            bin_array.reverse()
+            bin_array.tofile(write_file)
+
+        # checks whether the IBM number is smaller than IEEE could represent and
+        # if so, it converts it to a double denormalized number.
+        elif int(newExponent, 2) < 0 and int(newExponent, 2) >= -16 and output_p == 'd':
+            bin_array = array('B')
+            newExponent = ''.ljust(11, '0')
+            newFraction = bin(int(newFraction, 2) >> (int(newExponent, 2) * (-1)))
+
+            bin_array.append(int(sign + newExponent[:-4], 2))
+            bin_array.append(int(newExponent[-4:] + newFraction[:4], 2))
+            bin_array.append(int(newFraction[4:12], 2))
+            bin_array.append(int(newFraction[12:20], 2))
+            bin_array.append(int(newFraction[20:28], 2))
+            bin_array.append(int(newFraction[28:36], 2))
+            bin_array.append(int(newFraction[36:44], 2))
+            bin_array.append(int(newFraction[44:], 2))
+
+            bin_array.reverse()
+            bin_array.tofile(write_file)
+
+
+        # checks whether the IBM number is smaller than IEEE could represent and
         # if so, it converts it to zero.
-        if int(newExponent, 2) < 0:
+        elif int(newExponent, 2) < -7:
             # print("tooSmall caught: converting to Zero")
             bin_array = array('B')
             if output_p == 's':
